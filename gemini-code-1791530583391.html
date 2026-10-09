@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal PdPR 2026 - 1 Ikhlas | SMK Taman Maluri</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Canvas Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <style>
+    @media print {
+      .no-print { display: none !important; }
+      body { background: white; color: black; }
+    }
+  </style>
+</head>
+<body class="bg-slate-100 min-h-screen font-sans text-slate-800">
+
+  <!-- MODAL PEMILIHAN MOD LOG MASUK -->
+  <div id="loginModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 text-center border border-slate-200">
+      <div class="mb-4 inline-flex items-center justify-center w-16 h-16 rounded-full bg-indigo-100 text-indigo-600">
+        <i class="fa-solid fa-graduation-cap text-3xl"></i>
+      </div>
+      <h2 class="text-2xl font-bold text-slate-800 mb-1">Portal PdPR 1 Ikhlas 2026</h2>
+      <p class="text-xs text-slate-500 mb-6">SMK Taman Maluri • Log Masuk Keselamatan</p>
+
+      <!-- Pilihan Mod -->
+      <div class="grid grid-cols-2 gap-3 mb-6">
+        <button id="btnRoleStudent" onclick="selectRole('student')" class="py-3 px-4 rounded-xl border-2 border-indigo-600 bg-indigo-50 font-semibold text-indigo-700 flex flex-col items-center gap-1 transition">
+          <i class="fa-solid fa-user-graduate text-xl"></i>
+          <span>Mod Murid</span>
+        </button>
+        <button id="btnRoleTeacher" onclick="selectRole('teacher')" class="py-3 px-4 rounded-xl border-2 border-slate-200 hover:border-indigo-400 font-semibold text-slate-600 flex flex-col items-center gap-1 transition">
+          <i class="fa-solid fa-chalkboard-user text-xl"></i>
+          <span>Mod Guru</span>
+        </button>
+      </div>
+
+      <!-- Input Form Murid -->
+      <div id="studentLoginForm">
+        <label class="block text-left text-xs font-semibold text-slate-600 mb-1">NO. KAD PENGENALAN (IC)</label>
+        <input type="text" id="studentIcInput" placeholder="Contoh: 130930101787" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none mb-3 text-center text-lg font-mono tracking-wider">
+        <p class="text-xs text-slate-400 mb-4 text-left">*Masukkan 12 digit No. IC tanpa sempang untuk pengesahan nama automatik.</p>
+        <button onclick="loginStudent()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-indigo-200 flex items-center justify-center gap-2">
+          <i class="fa-solid fa-right-to-bracket"></i> Log Masuk Murid
+        </button>
+      </div>
+
+      <!-- Input Form Guru -->
+      <div id="teacherLoginForm" class="hidden">
+        <label class="block text-left text-xs font-semibold text-slate-600 mb-1">KATA LALUAN GURU</label>
+        <input type="password" id="teacherPassInput" placeholder="Masukkan kata laluan" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none mb-4 text-center text-lg">
+        <button onclick="loginTeacher()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-emerald-200 flex items-center justify-center gap-2">
+          <i class="fa-solid fa-key"></i> Log Masuk Guru
+        </button>
+      </div>
+
+      <p id="loginError" class="text-red-500 text-xs font-semibold mt-3 hidden"></p>
+    </div>
+  </div>
+
+  <!-- OVERLAY SELAMAT DATANG -->
+  <div id="welcomeOverlay" class="fixed inset-0 bg-slate-900/90 backdrop-blur-md flex items-center justify-center z-50 hidden text-center text-white p-6">
+    <div class="animate-bounce mb-4">
+      <i class="fa-solid fa-circle-check text-6xl text-emerald-400"></i>
+    </div>
+    <h1 id="welcomeTitle" class="text-3xl font-extrabold mb-2">Selamat Datang!</h1>
+    <p id="welcomeSubtitle" class="text-slate-300 text-lg"></p>
+  </div>
+
+  <!-- NAVBAR -->
+  <nav class="bg-white border-b border-slate-200 sticky top-0 z-30 no-print">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="bg-indigo-600 text-white p-2 rounded-lg font-bold">1I</div>
+        <div>
+          <h1 class="font-bold text-slate-800 text-sm sm:text-base leading-tight">Portal PdPR 1 Ikhlas 2026</h1>
+          <p class="text-xs text-slate-500">SMK Taman Maluri</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <span id="userBadgeRole" class="px-3 py-1 bg-indigo-100 text-indigo-700 text-xs font-bold rounded-full"></span>
+        <button onclick="logout()" class="text-xs font-semibold text-rose-600 hover:bg-rose-50 px-3 py-1.5 rounded-lg border border-rose-200 transition">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i> Keluar
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- CONTAINER DASHBOARD MURID -->
+  <main id="studentDashboard" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 hidden">
+    <!-- Header Murid -->
+    <div class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-6 text-white shadow-xl mb-6">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <span class="bg-white/20 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider">Dashboard Murid</span>
+          <h2 id="studentNameHeader" class="text-2xl sm:text-3xl font-black mt-2">-[Nama Murid]-</h2>
+          <p id="studentIcHeader" class="text-indigo-100 text-xs font-mono mt-1"></p>
+          <p id="lastLoginDisplay" class="text-xs text-indigo-200 mt-2"><i class="fa-regular fa-clock"></i> Log Masuk Terakhir: Baru sahaja</p>
+        </div>
+        <div class="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20 text-center min-w-[160px]">
+          <p class="text-xs text-indigo-200 font-semibold uppercase">Jumlah XP Ganjaran</p>
+          <p id="studentXpDisplay" class="text-3xl font-extrabold text-amber-300 my-1">0 XP</p>
+          <div class="w-full bg-white/20 h-2 rounded-full overflow-hidden mt-2">
+            <div id="xpProgressBar" class="bg-amber-400 h-full w-0 transition-all duration-500"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Direct Google Meet -->
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-4">
+        <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-2xl font-bold">
+          <i class="fa-solid fa-video"></i>
+        </div>
+        <div>
+          <h3 class="font-bold text-slate-800 text-lg">Kelas Live Google Meet (1 Ikhlas)</h3>
+          <p class="text-xs text-slate-500">Sertai pautan Meet rasmi mengikut jadual kelas untuk pendaftaran kehadiran automatik (+50 XP).</p>
+        </div>
+      </div>
+      <button onclick="joinGoogleMeet()" class="w-full sm:w-auto px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition shadow-lg shadow-emerald-100 flex items-center justify-center gap-2">
+        <i class="fa-solid fa-external-link"></i> Sertai Meet (+50 XP)
+      </button>
+    </div>
+
+    <!-- JADUAL WAKTU KELAS 1 IKHLAS -->
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 mb-6">
+      <h3 class="font-bold text-slate-800 text-lg mb-3 flex items-center gap-2">
+        <i class="fa-solid fa-calendar-days text-indigo-600"></i> Jadual Waktu PdPR Kelas 1 Ikhlas 2026
+      </h3>
+      <div class="flex gap-2 overflow-x-auto pb-2 mb-4">
+        <button onclick="switchDayTab('ISNIN')" id="dayTab-ISNIN" class="px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white">ISNIN</button>
+        <button onclick="switchDayTab('SELASA')" id="dayTab-SELASA" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200">SELASA</button>
+        <button onclick="switchDayTab('RABU')" id="dayTab-RABU" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200">RABU</button>
+        <button onclick="switchDayTab('KHAMIS')" id="dayTab-KHAMIS" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200">KHAMIS</button>
+        <button onclick="switchDayTab('JUMAAT')" id="dayTab-JUMAAT" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200">JUMAAT</button>
+      </div>
+      <div id="timetableDisplay" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3"></div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Tugasan Murid & Muat Naik Gambar/Dokumen -->
+      <div class="lg:col-span-2 space-y-6">
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+          <h3 class="font-bold text-slate-800 text-lg mb-1 flex items-center gap-2">
+            <i class="fa-solid fa-list-check text-blue-600"></i> Tugasan Subjek & Hantar Bukti Jawapan
+          </h3>
+          <p class="text-xs text-slate-500 mb-4">Lengkapkan jawapan bertulis dan muat naik bukti gambaran latihan / dokumen untuk disemak oleh guru (+100 XP).</p>
+          <div id="studentAssignedTasksList" class="space-y-4"></div>
+        </div>
+
+        <!-- Ulangkaji AI Interaktif (5 Soalan Tidak Berulang) -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+          <h3 class="font-bold text-slate-800 text-lg mb-2 flex items-center gap-2">
+            <i class="fa-solid fa-robot text-purple-600"></i> Kuiz Ulangkaji AI (+50 XP)
+          </h3>
+          <p class="text-xs text-slate-500 mb-4">Sistem AI menjana 5 soalan unik yang tidak berulang bagi setiap sesi latihan.</p>
+          <div class="flex flex-col sm:flex-row gap-3 mb-4">
+            <select id="quizSubjectSelect" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-purple-500"></select>
+            <button onclick="startAiQuiz()" class="px-6 py-2.5 bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold rounded-xl transition flex items-center justify-center gap-2 whitespace-nowrap">
+              <i class="fa-solid fa-play"></i> Mula Kuiz AI
+            </button>
+          </div>
+          <div id="quizContainer" class="hidden bg-purple-50 border border-purple-200 rounded-xl p-4 mt-4 space-y-4">
+            <div id="quizQuestionsList" class="space-y-4"></div>
+            <button onclick="submitFullQuiz()" id="btnSubmitQuiz" class="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-xl shadow transition hidden">
+              Hantar Semua Jawapan Kuiz (+50 XP)
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lencana Pencapaian Murid -->
+      <div class="space-y-6">
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+          <h3 class="font-bold text-slate-800 text-lg mb-1 flex items-center gap-2">
+            <i class="fa-solid fa-award text-amber-500"></i> Lencana Pencapaian
+          </h3>
+          <p class="text-xs text-slate-500 mb-4">Buka kunci lencana khas berasaskan aktiviti pembelajaran!</p>
+          <div class="space-y-3" id="badgesContainer"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- CONTAINER DASHBOARD GURU -->
+  <main id="teacherDashboard" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 hidden">
+    <!-- Header Guru -->
+    <div class="bg-slate-800 rounded-2xl p-6 text-white shadow-xl mb-6">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <span class="bg-emerald-500/20 text-emerald-300 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider">Dashboard Pengurusan Guru</span>
+          <h2 class="text-2xl sm:text-3xl font-black mt-2">Pengurusan PdPR, Tugasan & Semakan</h2>
+          <p class="text-slate-400 text-xs mt-1">Cikgu Nur Soffea Arisya Binti Hairy Azlan • SMK Taman Maluri 2026</p>
+        </div>
+        <div class="flex gap-2 no-print">
+          <button onclick="exportToCSV()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition flex items-center gap-2">
+            <i class="fa-solid fa-file-csv"></i> Eksport CSV
+          </button>
+          <button onclick="window.print()" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition flex items-center gap-2">
+            <i class="fa-solid fa-print"></i> Cetak PDF
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modul 1: Guru Cipta Tugasan Ikut Jadual Subjek & Muat Naik Lampiran -->
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 mb-6 no-print">
+      <h3 class="font-bold text-slate-800 text-lg mb-4 flex items-center gap-2">
+        <i class="fa-solid fa-pen-to-square text-indigo-600"></i> Cipta Tugasan Baharu Mengikut Jadual Subjek
+      </h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Pilih Subjek</label>
+          <select id="teacherSubjectSelect" onchange="updateTeacherNameDisplay()" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-indigo-500"></select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Guru Mata Pelajaran</label>
+          <input type="text" id="teacherNameDisplay" readonly class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 font-semibold text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Hari Jadual Waktu</label>
+          <select id="taskDaySelect" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm">
+            <option value="ISNIN">ISNIN</option>
+            <option value="SELASA">SELASA</option>
+            <option value="RABU">RABU</option>
+            <option value="KHAMIS">KHAMIS</option>
+            <option value="JUMAAT">JUMAAT</option>
+          </select>
+        </div>
+      </div>
+      <div class="mb-4 space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Tajuk Tugasan / Bab</label>
+          <input type="text" id="taskTitleInput" placeholder="Contoh: Latihan Bab 1 (Tingkatan 1)" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Arahan Tugasan Untuk Murid</label>
+          <textarea id="taskDescInput" rows="2" placeholder="Arahan lengkap latihan..." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm"></textarea>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1"><i class="fa-solid fa-paperclip"></i> Muat Naik Lampiran Soalan / Dokumen (Imej/PDF/Fail)</label>
+          <input type="file" id="taskFileInput" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+        </div>
+      </div>
+      <button onclick="assignTask()" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl transition flex items-center gap-2">
+        <i class="fa-solid fa-paper-plane"></i> Hantar Tugasan Kepada Murid 1 Ikhlas
+      </button>
+    </div>
+
+    <!-- Modul 2: Senarai Tugasan Diberikan (Boleh EDIT & PADAM) -->
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 mb-6 no-print">
+      <h3 class="font-bold text-slate-800 text-lg mb-3 flex items-center gap-2">
+        <i class="fa-solid fa-folder-open text-amber-600"></i> Pengurusan Tugasan (Kemaskini / Padam)
+      </h3>
+      <div id="teacherManageTasksList" class="space-y-3"></div>
+    </div>
+
+    <!-- Modul 3: Guru Semak Jawapan Murid & Lampiran -->
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 mb-6 no-print">
+      <h3 class="font-bold text-slate-800 text-lg mb-2 flex items-center gap-2">
+        <i class="fa-solid fa-clipboard-check text-emerald-600"></i> Semak Jawapan Murid, Lampiran & Beri Markah
+      </h3>
+      <p class="text-xs text-slate-500 mb-4">Pilih tugasan di bawah untuk melihat senarai jawapan & imej/dokumen yang dihantar murid.</p>
+      
+      <div class="mb-4">
+        <label class="block text-xs font-semibold text-slate-600 mb-1">Pilih Tugasan Untuk Disemak:</label>
+        <select id="teacherTaskReviewSelect" onchange="renderStudentSubmissionsList()" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm"></select>
+      </div>
+
+      <div id="submissionsReviewContainer" class="space-y-4"></div>
+    </div>
+
+    <!-- Modul 4: Laporan Real-Time 30 Murid -->
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+        <div>
+          <h3 class="font-bold text-slate-800 text-lg">Laporan Kehadiran & Prestasi Real-Time (30 Murid)</h3>
+          <p class="text-xs text-slate-500">Status log masuk, Google Meet, tugasan dihantar & markah murid secara live.</p>
+        </div>
+        <div class="flex items-center gap-2 no-print">
+          <span class="text-xs font-semibold text-slate-600">Filter:</span>
+          <select id="statusFilter" onchange="renderTeacherTable()" class="px-3 py-1.5 rounded-lg border border-slate-300 text-xs focus:ring-2 focus:ring-indigo-500">
+            <option value="all">Semua Murid (30)</option>
+            <option value="present">Hadir Log Masuk</option>
+            <option value="absent">Belum Hadir</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs border-collapse">
+          <thead>
+            <tr class="bg-slate-100 text-slate-700 border-b border-slate-200">
+              <th class="p-3">Bil</th>
+              <th class="p-3">Nama Murid</th>
+              <th class="p-3">No. IC</th>
+              <th class="p-3">Masa Log Masuk</th>
+              <th class="p-3 text-center">Google Meet</th>
+              <th class="p-3 text-center">Tugasan Siap</th>
+              <th class="p-3 text-center">Purata Markah</th>
+              <th class="p-3 text-center">Jumlah XP</th>
+              <th class="p-3">Lencana Terkumpul</th>
+            </tr>
+          </thead>
+          <tbody id="teacherTableBody" class="divide-y divide-slate-100"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- MODAL EDIT TUGASAN (MOD GURU) -->
+  <div id="editTaskModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center z-50 hidden p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+      <h3 class="font-bold text-lg text-slate-800">Kemaskini / Edit Tugasan</h3>
+      <input type="hidden" id="editTaskId">
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-1">Tajuk Tugasan</label>
+        <input type="text" id="editTaskTitle" class="w-full px-3 py-2 border rounded-xl text-xs">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-1">Arahan Tugasan</label>
+        <textarea id="editTaskDesc" rows="3" class="w-full px-3 py-2 border rounded-xl text-xs"></textarea>
+      </div>
+      <div class="flex justify-end gap-2">
+        <button onclick="closeEditTaskModal()" class="px-4 py-2 border rounded-xl text-xs font-bold">Batal</button>
+        <button onclick="saveEditedTask()" class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold">Simpan Kemaskini</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // SENARAI 30 MURID 1 IKHLAS 2026
+    const STUDENTS = [
+      { id: 1, ic: "130930101787", name: "ABDUL WAFI BIN AHMAD ZAINI" },
+      { id: 2, ic: "130829100253", name: "ADAM AMRULLAH SYAH BIN IBNU SYAHEED" },
+      { id: 3, ic: "130926080258", name: "ADZRA SAKIINAH BINTI MOHD RASHIDI" },
+      { id: 4, ic: "130506101147", name: "AHMAD ALWA'IZUL FAIQ BIN ABU AHMAD KAMIL" },
+      { id: 5, ic: "130807100797", name: "AIMAN RIZQI BIN AZMI" },
+      { id: 6, ic: "130222140945", name: "ALEXANDER ZULKARNAIN BIN ABDUL AZIM" },
+      { id: 7, ic: "130804140590", name: "ALISHA SOFEA BINTI MUHAMMAD SUFFIAN" },
+      { id: 8, ic: "130817100096", name: "AMIRAH NORFATIN BINTI FAIZAL" },
+      { id: 9, ic: "131126140085", name: "AQIEL ZAYYAD BIN AZFA RIZAL" },
+      { id: 10, ic: "130912140352", name: "HUSNA NASUHA BINTI MOHAMAD NAZRI" },
+      { id: 11, ic: "130523141271", name: "MEGAT QALIEFF BIN MEGAT QAZREE" },
+      { id: 12, ic: "130905102323", name: "MUHAMMAD AFIF NAUFAL BIN ADNAN" },
+      { id: 13, ic: "130517141275", name: "MUHAMMAD FARHANNUDDIN BIN MOHAMMAD NOWAISER" },
+      { id: 14, ic: "130116141047", name: "MUHAMMAD FAYYED BIN ABD WAHID" },
+      { id: 15, ic: "130627080039", name: "MUHAMMAD RAIQAL QHALISH BIN MUHAMMAD RIZAL" },
+      { id: 16, ic: "130208100365", name: "MUHAMMAD SHAFIQ BIN MOHD SHARIFULAKTAR" },
+      { id: 17, ic: "130515160149", name: "NADEEM ISKANDAR BIN IZAN FADLI" },
+      { id: 18, ic: "130719100535", name: "NIK ARYAN NIYAZ BIN NIK HANIZAM" },
+      { id: 19, ic: "130406110230", name: "NOOR SHAMIMI WARDIAH BINTI MOHD SHAMSUNI" },
+      { id: 20, ic: "131110140718", name: "NUR AMANDA JASMINE BINTI RAIMIE SHAHREEN" },
+      { id: 21, ic: "131119101766", name: "NUR AZZALEA DELISHA BINTI RUSLY" },
+      { id: 22, ic: "130811100546", name: "NUR DANISHA BINTI ABDUL RAHMAN" },
+      { id: 23, ic: "130208101528", name: "NUR IRDINA IMANI BINTI MD SHAHARI" },
+      { id: 24, ic: "130512140388", name: "NUR NAYLIS DARWISYA BINTI MUHAMMAD FADZIL" },
+      { id: 25, ic: "130413140278", name: "NUR SHYDATUL HAFIZA BINTI MOHD SAIFUL" },
+      { id: 26, ic: "131025101052", name: "NURUL SYAZLEYZA ZULAIKHA BINTI AZLEY" },
+      { id: 27, ic: "130615100944", name: "NUR ARISHA QAHEERA BINTI KAMAL JUFRI" },
+      { id: 28, ic: "131011103196", name: "NUR RAISHA DANIA BINTI MOHD RAZI" },
+      { id: 29, ic: "130502100139", name: "MUHAMMAD AFIQ DARWISY BIN MOHD AZMI" },
+      { id: 30, ic: "130926140337", name: "MUHAMMAD ZARITH IMAN BIN MOND ZAIDI" }
+    ];
+
+    // SUBJEK & GURU
+    const SUBJECTS = [
+      { code: "BM", name: "B. MELAYU", teacher: "CGU HAFIZAH" },
+      { code: "BI", name: "B. INGGERIS", teacher: "MR. AMMAR" },
+      { code: "SJ", name: "SEJARAH", teacher: "CGU ANIS SUHAILA" },
+      { code: "GEO", name: "GEOGRAFI", teacher: "CGU NIK AZUAN" },
+      { code: "PI", name: "P. ISLAM / B. CINA", teacher: "USTAZAH NAJMA" },
+      { code: "RBT", name: "RBT", teacher: "DR. SUHAIDA / CGU AZLIN / CGU ZUL" },
+      { code: "MM", name: "MATEMATIK", teacher: "CGU SOFFEA" },
+      { code: "SN", name: "SAINS", teacher: "CGU AINA" },
+      { code: "PSV", name: "P. SENI VISUAL", teacher: "CGU AIN SYUKRIAH" },
+      { code: "PJK", name: "PJK", teacher: "CGU TUAN AMAR / CGU ALIAH" }
+    ];
+
+    // JADUAL WAKTU
+    const SCHEDULE = {
+      ISNIN: ["BM (Cgu Hafizah)", "SJ (Cgu Anis)", "SN (Cgu Aina)", "MM (Cgu Soffea)", "BM (Cgu Hafizah)", "PI (Ustazah Najma)", "BI (Mr. Ammar)", "GEO (Cgu Nik)", "PSV (Cgu Ain)"],
+      SELASA: ["SJ (Cgu Anis)", "MM (Cgu Soffea)", "SN (Cgu Aina)", "BI (Mr. Ammar)", "PJK (Cgu Tuan)", "PJK (Cgu Aliah)", "PI (Ustazah Najma)", "MM (Cgu Soffea)", "GEO (Cgu Nik)"],
+      RABU: ["GEO (Cgu Nik)", "RBT (Dr. Suhaida)", "BM (Cgu Hafizah)", "RBT (Cgu Azlin)", "BM (Cgu Hafizah)", "PI (Ustazah Najma)", "SN (Cgu Aina)", "PSV (Cgu Ain)"],
+      KHAMIS: ["BM (Cgu Hafizah)", "RBT (Cgu Zul)", "BM (Cgu Hafizah)", "SJ (Cgu Anis)", "SN (Cgu Aina)", "PI (Ustazah Najma)", "MM (Cgu Soffea)", "BI (Mr. Ammar)", "PJK (Cgu Tuan)"],
+      JUMAAT: ["SJ (Cgu Anis)", "PI (Ustazah Najma)", "SN (Cgu Aina)", "PI (Ustazah Najma)", "MM (Cgu Soffea)", "BI (Mr. Ammar)"]
+    };
+
+    // BANK SOALAN KUIZ AI BERGANDA
+    const AI_QUIZ_BANK = {
+      BM: [
+        { q: "Apakah kata ganti nama diri pertama yang sesuai dalam ucapan rasmi?", options: ["Saya", "Aku", "Kita", "Engkau"], correct: 0 },
+        { q: "Manakah antara berikut kata majmuk yang telah mantap?", options: ["Tanggungjawab", "Rumah tangga", "Kereta api", "Guru besar"], correct: 0 },
+        { q: "Pilih ayat yang mengandungi kata kerja transitif:", options: ["Ali membaca buku di perpustakaan.", "Budak itu menangis terisak-isak.", "Burung terbang tinggi.", "Bapa tidur di sofa."], correct: 0 },
+        { q: "Apakah penjodoh bilangan yang sesuai untuk pisau?", options: ["Bilah", "Pucuk", "Batang", "Buah"], correct: 0 },
+        { q: "Apakah sinonim bagi perkataan 'gigih'?", options: ["Tekun", "Malas", "Lemah", "Lembap"], correct: 0 },
+        { q: "Peribahasa 'Bagai cendawan tumbuh selepas hujan' bermaksud:", options: ["Terlalu banyak pada satu-satu masa", "Sesuatu yang sangat sukar", "Orang yang malas bekerja", "Kejadian yang menyedihkan"], correct: 0 },
+        { q: "Pilih kata nama khas yang betul:", options: ["SMK Taman Maluri", "sekolah menengah", "cikgu hafizah", "padang bola"], correct: 0 },
+        { q: "Pola ayat dasar bagi 'Ahmad seorang jurutera' ialah:", options: ["FN + FN", "FN + FK", "FN + FA", "FN + FS"], correct: 0 },
+        { q: "Apakah antonim bagi perkataan 'terbit'?", options: ["Tenggelam", "Muncul", "Naik", "Cerah"], correct: 0 },
+        { q: "Pilih penggunaan imbuhan 'men-...-kan' yang betul:", options: ["Mencatatkan", "Memcatat", "Mencatatkankan", "Mencatats"], correct: 0 }
+      ],
+      MM: [
+        { q: "Berapakah nilai (-5) + 8?", options: ["3", "-3", "13", "-13"], correct: 0 },
+        { q: "Permudahkan ungkapan algebra: 3x + 2x", options: ["5x", "6x", "5x²", "x"], correct: 0 },
+        { q: "Cari nilai x jika 2x = 10.", options: ["5", "20", "8", "12"], correct: 0 },
+        { q: "Gandaan Sepunya Terkecil (GSTK) bagi 2 dan 3 ialah:", options: ["6", "1", "12", "5"], correct: 0 },
+        { q: "Berapakah kuasa dua bagi 7?", options: ["49", "14", "21", "56"], correct: 0 },
+        { q: "Sudut tegak mempunyai nilai:", options: ["90°", "180°", "360°", "45°"], correct: 0 },
+        { q: "Cari perimeter bagi segi empat sama bersisi 5 cm.", options: ["20 cm", "25 cm", "10 cm", "15 cm"], correct: 0 },
+        { q: "Tukar 0.75 kepada bentuk peratusan:", options: ["75%", "7.5%", "750%", "0.75%"], correct: 0 },
+        { q: "Apakah nisbah 20 minit kepada 1 jam dalam bentuk termudah?", options: ["1 : 3", "1 : 2", "2 : 3", "1 : 4"], correct: 0 },
+        { q: "Punca kuasa dua bagi 64 ialah:", options: ["8", "6", "16", "32"], correct: 0 }
+      ],
+      SN: [
+        { q: "Apakah unit SI bagi suhu?", options: ["Kelvin", "Celsius", "Fahrenheit", "Joule"], correct: 0 },
+        { q: "Apakah organel sel yang mengandungi klorofil untuk fotosintesis?", options: ["Kloroplas", "Mitokondria", "Nukleus", "Vakuol"], correct: 0 },
+        { q: "Manakah antara berikut TIDAK wujud pada sel haiwan?", options: ["Dinding Sel", "Membran Sel", "Sitoplasma", "Nukleus"], correct: 0 },
+        { q: "Formula bagi Ketumpatan ialah:", options: ["Jisim / Isipadu", "Isipadu / Jisim", "Jisim x Isipadu", "Jisim + Isipadu"], correct: 0 },
+        { q: "Apakah cecair yang dikategorikan sebagai larutan neutral?", options: ["Air suling (pH 7)", "Jus lemon", "Air sabun", "Cuka"], correct: 0 },
+        { q: "Proses perubahan keadaan jirim daripada pepejal kepada cecair dinamakan:", options: ["Peleburan", "Pendidihan", "Pemeluwapan", "Pembekuan"], correct: 0 },
+        { q: "Manakah antara berikut merupakan gas yang diperlukan untuk respirasi?", options: ["Oksigen", "Karbon dioksida", "Nitrogen", "Helium"], correct: 0 },
+        { q: "Pembuluh darah yang membawa darah beroksigen keluar dari jantung ialah:", options: ["Arteri", "Vena", "Kapilari", "Injap"], correct: 0 },
+        { q: "Apakah unsur kimia yang membentuk molekul air (H2O)?", options: ["Hidrogen dan Oksigen", "Karbon dan Oksigen", "Nitrogen dan Hidrogen", "Natrium dan Klorin"], correct: 0 },
+        { q: "Negeri jirim yang mempunyai bentuk dan isipadu tetap ialah:", options: ["Pepejal", "Cecair", "Gas", "Plasma"], correct: 0 }
+      ],
+      SJ: [
+        { q: "Apakah yang dimaksudkan dengan sumber primer dalam sejarah?", options: ["Sumber asli belum diolah seperti fosil dan manuskrip", "Buku teks sekolah", "Majalah bulanan", "Surat khabar moden"], correct: 0 },
+        { q: "Zaman Batu terbahagi kepada empat iaitu Paleolitik, Mesolitik, Neolitik dan:", options: ["Zaman Logam", "Zaman Gangsa", "Zaman Besi", "Zaman Ais"], correct: 0 },
+        { q: "Siapakah pengasas Kesultanan Melayu Melaka?", options: ["Parameswara", "Sultan Muzaffar Shah", "Hang Tuah", "Tun Perak"], correct: 0 },
+        { q: "Apakah lokasi penemuan rangka 'Perak Man' di Malaysia?", options: ["Gua Gunung Runtuh, Lenggong", "Gua Niah, Sarawak", "Gua Cha, Kelantan", "Batu Niah"], correct: 0 },
+        { q: "Sistem pertukaran barang tanpa wang pada zaman purba dipanggil:", options: ["Sistem Barter", "Sistem Cukai", "Sistem Ufti", "Sistem Tunai"], correct: 0 },
+        { q: "Alat batu zaman Neolitik mempunyai ciri khas iaitu:", options: ["Dihiasi dan dihaluskan", "Kasar dan tidak dikikis", "Dibuat daripada besi", "Dibuat daripada plastik"], correct: 0 },
+        { q: "Manakah antara berikut merupakan contoh sumber sekunder?", options: ["Buku Risalah Sejarah", "Batu Bersurat Terengganu", "Fosil manusia purba", "Dokumen rasmi kerajaan 1957"], correct: 0 },
+        { q: "Gua Niah terletak di negeri:", options: ["Sarawak", "Sabah", "Perak", "Pahang"], correct: 0 },
+        { q: "Apakah iklim yang mempengaruhi petempatan awal di Nusantara?", options: ["Khatulistiwa", "Tundra", "Gurun", "Sejuk"], correct: 0 },
+        { q: "Arkeologi merupakan kajian sejarah berdasarkan:", options: ["Tinggalan artifak dan bahan purba", "Cerita rekaan", "Puisi tradisional", "Mimpi tua-tua"], correct: 0 }
+      ],
+      BI: [
+        { q: "Choose the correct past tense of 'run':", options: ["Ran", "Running", "Runs", "Runned"], correct: 0 },
+        { q: "What is the plural form of 'child'?", options: ["Children", "Childs", "Childrens", "Childes"], correct: 0 },
+        { q: "Choose the correct article: 'I saw ___ elephant at the zoo.'", options: ["an", "a", "the", "some"], correct: 0 },
+        { q: "Which word is a synonym for 'happy'?", options: ["Joyful", "Sad", "Angry", "Tired"], correct: 0 },
+        { q: "Select the correct sentence:", options: ["She goes to school every day.", "She go to school every day.", "She going to school every day.", "She gone to school."], correct: 0 },
+        { q: "What is the antonym of 'difficult'?", options: ["Easy", "Hard", "Tough", "Complex"], correct: 0 },
+        { q: "Complete the sentence: 'They ___ playing football right now.'", options: ["are", "is", "am", "was"], correct: 0 },
+        { q: "Choose the correct comparative form of 'fast':", options: ["Faster", "Fastest", "More fast", "Most fast"], correct: 0 },
+        { q: "Which of the following is a noun?", options: ["Teacher", "Quickly", "Beautiful", "Run"], correct: 0 },
+        { q: "What is the superlative form of 'good'?", options: ["Best", "Better", "Gooder", "Goodest"], correct: 0 }
+      ]
+    };
+
+    const BADGES_LIST = [
+      { id: "active", title: "Pelajar Aktif", desc: "Log masuk ke portal PdPR", icon: "fa-bolt", color: "text-amber-500 bg-amber-50" },
+      { id: "meet", title: "Rajin Hadir", desc: "Sertai kelas Google Meet Live", icon: "fa-video", color: "text-emerald-500 bg-emerald-50" },
+      { id: "task", title: "Juara Tugasan", desc: "Menyiapkan Tugasan Subjek", icon: "fa-circle-check", color: "text-purple-500 bg-purple-50" },
+      { id: "ai", title: "Pakar AI", desc: "Menyelesaikan Kuiz Ulangkaji AI", icon: "fa-robot", color: "text-rose-500 bg-rose-50" }
+    ];
+
+    let selectedRole = 'student';
+    let currentStudent = null;
+    let currentActiveQuizSubj = null;
+    let currentQuizQuestions = [];
+    let selectedDayTab = 'ISNIN';
+
+    function getStore() {
+      const data = localStorage.getItem('pdpr_1ikhlas_v3_store');
+      if (data) return JSON.parse(data);
+
+      const initial = {
+        studentRecords: {},
+        assignments: [
+          {
+            id: 1,
+            subject: "BM",
+            day: "ISNIN",
+            teacher: "CGU HAFIZAH",
+            title: "Latihan Karangan Respon Terhad (Bab 1)",
+            desc: "Sila bina 5 ayat lengkap berdasarkan gambar rajah dalam buku teks ms 12.",
+            attachment: null
+          }
+        ],
+        submissions: {},
+        usedQuizIndices: {}
+      };
+
+      STUDENTS.forEach(s => {
+        initial.studentRecords[s.ic] = { ic: s.ic, name: s.name, lastLogin: null, meetAttended: false, xp: 0, badges: [] };
+      });
+
+      localStorage.setItem('pdpr_1ikhlas_v3_store', JSON.stringify(initial));
+      return initial;
+    }
+
+    function saveStore(store) {
+      localStorage.setItem('pdpr_1ikhlas_v3_store', JSON.stringify(store));
+    }
+
+    function selectRole(role) {
+      selectedRole = role;
+      document.getElementById('loginError').classList.add('hidden');
+      if (role === 'student') {
+        document.getElementById('btnRoleStudent').className = "py-3 px-4 rounded-xl border-2 border-indigo-600 bg-indigo-50 font-semibold text-indigo-700 flex flex-col items-center gap-1 transition";
+        document.getElementById('btnRoleTeacher').className = "py-3 px-4 rounded-xl border-2 border-slate-200 hover:border-indigo-400 font-semibold text-slate-600 flex flex-col items-center gap-1 transition";
+        document.getElementById('studentLoginForm').classList.remove('hidden');
+        document.getElementById('teacherLoginForm').classList.add('hidden');
+      } else {
+        document.getElementById('btnRoleTeacher').className = "py-3 px-4 rounded-xl border-2 border-emerald-600 bg-emerald-50 font-semibold text-emerald-700 flex flex-col items-center gap-1 transition";
+        document.getElementById('btnRoleStudent').className = "py-3 px-4 rounded-xl border-2 border-slate-200 hover:border-indigo-400 font-semibold text-slate-600 flex flex-col items-center gap-1 transition";
+        document.getElementById('teacherLoginForm').classList.remove('hidden');
+        document.getElementById('studentLoginForm').classList.add('hidden');
+      }
+    }
+
+    function loginStudent() {
+      const icInput = document.getElementById('studentIcInput').value.trim();
+      const student = STUDENTS.find(s => s.ic === icInput);
+      const err = document.getElementById('loginError');
+
+      if (!student) {
+        err.innerText = "No. Kad Pengenalan tidak dijumpai dalam senarai 30 murid 1 Ikhlas!";
+        err.classList.remove('hidden');
+        return;
+      }
+
+      currentStudent = student;
+      const store = getStore();
+      const rec = store.studentRecords[student.ic];
+
+      rec.lastLogin = new Date().toLocaleString('ms-MY', { dateStyle: 'medium', timeStyle: 'short' });
+      if (!rec.badges.includes('active')) {
+        rec.xp += 20;
+        rec.badges.push('active');
+        triggerConfetti();
+      }
+
+      saveStore(store);
+      showWelcomeOverlay(`Selamat Datang, ${student.name}!`, "Daftar Kehadiran Berjaya (+20 XP)");
+    }
+
+    // LOG MASUK GURU (TANPA TIPS/BAYANGAN KATA LALUAN BILA SALAH)
+    function loginTeacher() {
+      const pass = document.getElementById('teacherPassInput').value;
+      const err = document.getElementById('loginError');
+
+      if (pass !== 'IKHLAS00') {
+        err.innerText = "Kata laluan Guru tidak sah!";
+        err.classList.remove('hidden');
+        return;
+      }
+      showWelcomeOverlay("Selamat Datang, Cikgu!", "Membuka Dashboard Pengurusan PdPR...");
+    }
+
+    function showWelcomeOverlay(title, subtitle) {
+      document.getElementById('welcomeTitle').innerText = title;
+      document.getElementById('welcomeSubtitle').innerText = subtitle;
+      document.getElementById('loginModal').classList.add('hidden');
+      document.getElementById('welcomeOverlay').classList.remove('hidden');
+
+      setTimeout(() => {
+        document.getElementById('welcomeOverlay').classList.add('hidden');
+        if (selectedRole === 'student') initStudentDashboard();
+        else initTeacherDashboard();
+      }, 1500);
+    }
+
+    function initStudentDashboard() {
+      document.getElementById('studentDashboard').classList.remove('hidden');
+      document.getElementById('teacherDashboard').classList.add('hidden');
+      document.getElementById('userBadgeRole').innerText = "Murid: 1 Ikhlas";
+      document.getElementById('studentNameHeader').innerText = currentStudent.name;
+      document.getElementById('studentIcHeader').innerText = `No. IC: ${currentStudent.ic}`;
+      renderStudentView();
+    }
+
+    function renderStudentView() {
+      const store = getStore();
+      const rec = store.studentRecords[currentStudent.ic];
+
+      document.getElementById('lastLoginDisplay').innerHTML = `<i class="fa-regular fa-clock"></i> Log Masuk Terakhir: ${rec.lastLogin || 'Baharu'}`;
+      document.getElementById('studentXpDisplay').innerText = `${rec.xp} XP`;
+      document.getElementById('xpProgressBar').style.width = `${Math.min((rec.xp / 500) * 100, 100)}%`;
+
+      renderTimetable();
+
+      // Render Tugasan Murid
+      const tasksContainer = document.getElementById('studentAssignedTasksList');
+      if (store.assignments.length === 0) {
+        tasksContainer.innerHTML = `<p class="text-xs text-slate-400">Tiada tugasan aktif buat masa ini.</p>`;
+      } else {
+        tasksContainer.innerHTML = store.assignments.map(t => {
+          const subMap = store.submissions[t.id] || {};
+          const mySub = subMap[currentStudent.ic];
+
+          let statusBadge = `<span class="px-2 py-0.5 rounded bg-amber-100 text-amber-700 font-bold text-[10px]">Belum Hantar</span>`;
+          if (mySub) {
+            statusBadge = mySub.status === 'Graded'
+              ? `<span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 font-bold text-[10px]">Telah Disemak (${mySub.mark}%)</span>`
+              : `<span class="px-2 py-0.5 rounded bg-blue-100 text-blue-700 font-bold text-[10px]">Menunggu Semakan Guru</span>`;
+          }
+
+          return `
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-3">
+              <div class="flex items-center justify-between">
+                <div>
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-indigo-100 text-indigo-700">${t.subject} (${t.day})</span>
+                  <h4 class="font-bold text-slate-800 text-sm mt-1">${t.title}</h4>
+                  <p class="text-xs text-slate-500">${t.desc}</p>
+                  <p class="text-[10px] text-slate-400 mt-1">Guru: ${t.teacher}</p>
+                  ${t.attachment ? `
+                    <div class="mt-2">
+                      <a href="${t.attachment.data}" download="${t.attachment.name}" target="_blank" class="inline-flex items-center gap-1 text-xs text-indigo-600 font-bold bg-indigo-50 px-2 py-1 rounded border border-indigo-200 hover:bg-indigo-100">
+                        <i class="fa-solid fa-paperclip"></i> Muat Turun Lampiran Soalan (${t.attachment.name})
+                      </a>
+                    </div>
+                  ` : ''}
+                </div>
+                <div>${statusBadge}</div>
+              </div>
+
+              <!-- Form Hantar Jawapan -->
+              <div class="pt-2 border-t border-slate-200">
+                ${mySub ? `
+                  <div class="p-3 bg-white rounded-lg border border-slate-200 text-xs space-y-2">
+                    <p class="font-semibold text-slate-700">Jawapan Anda:</p>
+                    <p class="text-slate-600">${mySub.text}</p>${mySub.attachment ? `
+                      <a href="${mySub.attachment.data}" target="_blank" download="${mySub.attachment.name}" class="inline-block text-xs font-bold text-emerald-600 underline">
+                        <i class="fa-solid fa-image"></i> Lihat Dokumen/Gambar Bukti (${mySub.attachment.name})
+                      </a>
+                    ` : ''}
+                    ${mySub.comment ? `
+                      <div class="p-2 bg-emerald-50 rounded border border-emerald-200 text-emerald-800">
+                        <p class="font-bold">Ulasan Guru (${t.teacher}):</p>
+                        <p class="italic">${mySub.comment}</p>
+                      </div>
+                    ` : ''}
+                  </div>
+                ` : `
+                  <div class="space-y-2">
+                    <textarea id="ansInput-${t.id}" rows="2" placeholder="Taip jawapan atau ulasan anda di sini..." class="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-indigo-500"></textarea>
+                    <div>
+                      <label class="block text-[10px] font-bold text-slate-600 mb-1"><i class="fa-solid fa-camera"></i> Muat Naik Lampiran Gambar Jawapan / Dokumen:</label>
+                      <input type="file" id="ansFileInput-${t.id}" class="w-full text-xs text-slate-500 file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700">
+                    </div>
+                    <button onclick="submitStudentAnswer(${t.id})" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg transition flex items-center gap-1">
+                      <i class="fa-solid fa-paper-plane"></i> Hantar Jawapan (+100 XP)
+                    </button>
+                  </div>
+                `}
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      document.getElementById('quizSubjectSelect').innerHTML = SUBJECTS.map(s => `<option value="${s.code}">${s.name} (${s.teacher})</option>`).join('');
+
+      document.getElementById('badgesContainer').innerHTML = BADGES_LIST.map(b => {
+        const unlocked = rec.badges.includes(b.id);
+        return `
+          <div class="p-3 rounded-xl border flex items-center gap-3 ${unlocked ? 'bg-white border-amber-300 shadow-sm' : 'bg-slate-50 border-slate-200 opacity-50'}">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg ${b.color}">
+              <i class="fa-solid ${b.icon}"></i>
+            </div>
+            <div class="flex-1">
+              <p class="font-bold text-xs ${unlocked ? 'text-slate-800' : 'text-slate-500'}">${b.title}</p>
+              <p class="text-[10px] text-slate-400">${b.desc}</p>
+            </div>
+            ${unlocked ? `<i class="fa-solid fa-ribbon text-amber-500 text-lg"></i>` : `<i class="fa-solid fa-lock text-slate-300 text-xs"></i>`}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function switchDayTab(day) {
+      selectedDayTab = day;
+      ['ISNIN', 'SELASA', 'RABU', 'KHAMIS', 'JUMAAT'].forEach(d => {
+        document.getElementById(`dayTab-${d}`).className = (d === day) ? "px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white" : "px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200";
+      });
+      renderTimetable();
+    }
+
+    function renderTimetable() {
+      const container = document.getElementById('timetableDisplay');
+      container.innerHTML = (SCHEDULE[selectedDayTab] || []).map((s, idx) => `
+        <div class="p-3 bg-indigo-50 border border-indigo-100 rounded-xl text-center">
+          <p class="text-[10px] font-bold text-indigo-500">Masa ${idx + 1}</p>
+          <p class="font-bold text-slate-800 text-xs mt-1">${s}</p>
+        </div>
+      `).join('');
+    }
+
+    async function submitStudentAnswer(taskId) {
+      const text = document.getElementById(`ansInput-${taskId}`).value.trim();
+      const fileInput = document.getElementById(`ansFileInput-${taskId}`);
+      let fileAttachment = null;
+
+      if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        fileAttachment = await readFileAsBase64(file);
+      }
+
+      if (!text && !fileAttachment) {
+        alert("Sila taip jawapan atau muat naik lampiran sebelum menghantar!");
+        return;
+      }
+
+      const store = getStore();
+      if (!store.submissions[taskId]) store.submissions[taskId] = {};
+
+      store.submissions[taskId][currentStudent.ic] = {
+        text: text || "Lampiran dokumen/gambar dihantar.",
+        attachment: fileAttachment,
+        mark: null,
+        comment: "",
+        status: "Submitted",
+        submittedAt: new Date().toLocaleString('ms-MY')
+      };
+
+      const rec = store.studentRecords[currentStudent.ic];
+      rec.xp += 100;
+      if (!rec.badges.includes('task')) {
+        rec.badges.push('task');
+        triggerConfetti();
+      }
+
+      saveStore(store);
+      alert("Jawapan & lampiran berjaya dihantar kepada guru! (+100 XP)");
+      renderStudentView();
+    }
+
+    function joinGoogleMeet() {
+      const store = getStore();
+      const rec = store.studentRecords[currentStudent.ic];
+      if (!rec.meetAttended) {
+        rec.meetAttended = true;
+        rec.xp += 50;
+        if (!rec.badges.includes('meet')) rec.badges.push('meet');
+        saveStore(store);
+        triggerConfetti();
+        renderStudentView();
+      }
+      window.open('https://meet.google.com/lookup/1ikhlas2026', '_blank');
+    }
+
+    // LOGIK KUIZ AI 5 SOALAN TIDAK BERULANG
+    function startAiQuiz() {
+      const subj = document.getElementById('quizSubjectSelect').value;
+      currentActiveQuizSubj = subj;
+      const store = getStore();
+
+      if (!store.usedQuizIndices[currentStudent.ic]) store.usedQuizIndices[currentStudent.ic] = {};
+      if (!store.usedQuizIndices[currentStudent.ic][subj]) store.usedQuizIndices[currentStudent.ic][subj] = [];
+
+      const fullPool = AI_QUIZ_BANK[subj] || AI_QUIZ_BANK['BM'];
+      let used = store.usedQuizIndices[currentStudent.ic][subj];
+
+      let availableIndices = fullPool.map((_, i) => i).filter(i => !used.includes(i));
+
+      if (availableIndices.length < 5) {
+        store.usedQuizIndices[currentStudent.ic][subj] = [];
+        availableIndices = fullPool.map((_, i) => i);
+      }
+
+      availableIndices.sort(() => 0.5 - Math.random());
+      const selectedIndices = availableIndices.slice(0, 5);
+
+      store.usedQuizIndices[currentStudent.ic][subj].push(...selectedIndices);
+      saveStore(store);
+
+      currentQuizQuestions = selectedIndices.map(i => fullPool[i]);
+
+      const container = document.getElementById('quizContainer');
+      container.classList.remove('hidden');
+
+      const qListDiv = document.getElementById('quizQuestionsList');
+      qListDiv.innerHTML = currentQuizQuestions.map((qData, qIdx) => `
+        <div class="p-3 bg-white rounded-xl border border-purple-100 shadow-sm">
+          <p class="font-bold text-slate-800 text-xs mb-2">Soalan ${qIdx + 1}: ${qData.q}</p>
+          <div class="space-y-1.5">
+            ${qData.options.map((opt, oIdx) => `
+              <label class="flex items-center gap-2 p-2 rounded-lg border border-slate-200 hover:bg-purple-50 cursor-pointer text-xs">
+                <input type="radio" name="quiz_q_${qIdx}" value="${oIdx}" class="text-purple-600">
+                <span>${opt}</span>
+              </label>
+            `).join('')}
+          </div>
+        </div>
+      `).join('');
+
+      document.getElementById('btnSubmitQuiz').classList.remove('hidden');
+    }
+
+    function submitFullQuiz() {
+      let scoreCount = 0;
+      currentQuizQuestions.forEach((qData, qIdx) => {
+        const selected = document.querySelector(`input[name="quiz_q_${qIdx}"]:checked`);
+        if (selected && parseInt(selected.value) === qData.correct) {
+          scoreCount++;
+        }
+      });
+
+      const store = getStore();
+      const rec = store.studentRecords[currentStudent.ic];
+      rec.xp += 50;
+      if (!rec.badges.includes('ai')) {
+        rec.badges.push('ai');
+        triggerConfetti();
+      }
+
+      saveStore(store);
+      document.getElementById('quizContainer').classList.add('hidden');
+      alert(`Tahniah! Anda menjawab ${scoreCount}/5 soalan dengan betul dalam Kuiz AI ${currentActiveQuizSubj}! (+50 XP)`);
+      renderStudentView();
+    }
+
+    // DASHBOARD GURU
+    function initTeacherDashboard() {
+      document.getElementById('teacherDashboard').classList.remove('hidden');
+      document.getElementById('studentDashboard').classList.add('hidden');
+      document.getElementById('userBadgeRole').innerText = "Mod Guru";
+
+      populateTeacherSubjects();
+      renderTeacherManageTasks();
+      populateTeacherTaskSelect();
+      renderStudentSubmissionsList();
+      renderTeacherTable();
+    }
+
+    function populateTeacherSubjects() {
+      const select = document.getElementById('teacherSubjectSelect');
+      select.innerHTML = SUBJECTS.map(s => `<option value="${s.code}">${s.name}</option>`).join('');
+      updateTeacherNameDisplay();
+    }
+
+    function updateTeacherNameDisplay() {
+      const code = document.getElementById('teacherSubjectSelect').value;
+      const subj = SUBJECTS.find(s => s.code === code);
+      document.getElementById('teacherNameDisplay').value = subj ? subj.teacher : '';
+    }
+
+    async function assignTask() {
+      const subj = document.getElementById('teacherSubjectSelect').value;
+      const day = document.getElementById('taskDaySelect').value;
+      const title = document.getElementById('taskTitleInput').value.trim();
+      const desc = document.getElementById('taskDescInput').value.trim();
+      const fileInput = document.getElementById('taskFileInput');
+      const subjObj = SUBJECTS.find(s => s.code === subj);
+
+      if (!title || !desc) {
+        alert("Sila lengkapkan tajuk dan arahan tugasan!");
+        return;
+      }
+
+      let attachment = null;
+      if (fileInput.files.length > 0) {
+        attachment = await readFileAsBase64(fileInput.files[0]);
+      }
+
+      const store = getStore();
+      store.assignments.push({
+        id: Date.now(),
+        subject: subj,
+        day: day,
+        teacher: subjObj ? subjObj.teacher : 'GURU',
+        title: title,
+        desc: desc,
+        attachment: attachment
+      });
+
+      saveStore(store);
+
+      document.getElementById('taskTitleInput').value = '';
+      document.getElementById('taskDescInput').value = '';
+      fileInput.value = '';
+
+      alert(`Tugasan baharu berjaya dihantar kepada 30 murid!`);
+      renderTeacherManageTasks();
+      populateTeacherTaskSelect();
+      renderTeacherTable();
+    }
+
+    function renderTeacherManageTasks() {
+      const store = getStore();
+      const container = document.getElementById('teacherManageTasksList');
+
+      if (store.assignments.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-400">Tiada tugasan dicipta lagi.</p>`;
+        return;
+      }
+
+      container.innerHTML = store.assignments.map(t => `
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between gap-3 text-xs">
+          <div>
+            <span class="font-bold px-2 py-0.5 rounded bg-indigo-100 text-indigo-700">${t.subject} (${t.day})</span>
+            <p class="font-bold text-slate-800 text-sm mt-1">${t.title}</p>
+            <p class="text-slate-500">${t.desc}</p>
+            ${t.attachment ? `<span class="text-[10px] font-semibold text-emerald-600"><i class="fa-solid fa-paperclip"></i> Lampiran: ${t.attachment.name}</span>` : ''}
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="openEditTaskModal(${t.id})" class="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-lg transition">
+              <i class="fa-solid fa-pen"></i> Edit
+            </button>
+            <button onclick="deleteTask(${t.id})" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-lg transition">
+              <i class="fa-solid fa-trash"></i> Padam
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function openEditTaskModal(taskId) {
+      const store = getStore();
+      const task = store.assignments.find(t => t.id === taskId);
+      if (!task) return;
+
+      document.getElementById('editTaskId').value = task.id;
+      document.getElementById('editTaskTitle').value = task.title;
+      document.getElementById('editTaskDesc').value = task.desc;
+
+      document.getElementById('editTaskModal').classList.remove('hidden');
+    }
+
+    function closeEditTaskModal() {
+      document.getElementById('editTaskModal').classList.add('hidden');
+    }
+
+    function saveEditedTask() {
+      const taskId = parseInt(document.getElementById('editTaskId').value);
+      const newTitle = document.getElementById('editTaskTitle').value.trim();
+      const newDesc = document.getElementById('editTaskDesc').value.trim();
+
+      const store = getStore();
+      const task = store.assignments.find(t => t.id === taskId);
+      if (task) {
+        task.title = newTitle;
+        task.desc = newDesc;
+        saveStore(store);
+        alert("Tugasan berjaya dikemaskini!");
+        closeEditTaskModal();
+        renderTeacherManageTasks();
+        populateTeacherTaskSelect();
+      }
+    }
+
+    function deleteTask(taskId) {
+      if (!confirm("Adakah anda pasti mahu memadam tugasan ini? Rekod serahan murid juga akan dipadam.")) return;
+
+      const store = getStore();
+      store.assignments = store.assignments.filter(t => t.id !== taskId);
+      delete store.submissions[taskId];
+
+      saveStore(store);
+      alert("Tugasan berjaya dipadam!");
+      renderTeacherManageTasks();
+      populateTeacherTaskSelect();
+      renderStudentSubmissionsList();
+      renderTeacherTable();
+    }
+
+    function populateTeacherTaskSelect() {
+      const store = getStore();
+      const select = document.getElementById('teacherTaskReviewSelect');
+      if (store.assignments.length === 0) {
+        select.innerHTML = `<option value="">Tiada Tugasan</option>`;
+      } else {
+        select.innerHTML = store.assignments.map(t => `<option value="${t.id}">${t.subject} - ${t.title} (${t.day})</option>`).join('');
+      }
+    }
+
+    function renderStudentSubmissionsList() {
+      const store = getStore();
+      const taskId = document.getElementById('teacherTaskReviewSelect').value;
+      const container = document.getElementById('submissionsReviewContainer');
+
+      if (!taskId || !store.submissions[taskId]) {
+        container.innerHTML = `<p class="text-xs text-slate-400">Belum ada jawapan/lampiran dihantar oleh murid untuk tugasan ini.</p>`;
+        return;
+      }
+
+      const subMap = store.submissions[taskId];
+      const submittedStudents = Object.keys(subMap);
+
+      if (submittedStudents.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-400">Belum ada jawapan/lampiran dihantar oleh murid untuk tugasan ini.</p>`;
+        return;
+      }
+
+      container.innerHTML = submittedStudents.map(studentIc => {
+        const student = STUDENTS.find(s => s.ic === studentIc);
+        const sub = subMap[studentIc];
+
+        return `
+          <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-3">
+            <div class="flex justify-between items-center">
+              <div>
+                <p class="font-bold text-slate-800 text-sm">${student ? student.name : studentIc}</p>
+                <p class="text-[10px] text-slate-400">Tarikh Hantar: ${sub.submittedAt}</p>
+              </div>
+              <div>
+                ${sub.status === 'Graded' ? `<span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 font-bold rounded">Disemak: ${sub.mark}%</span>` : `<span class="px-2 py-0.5 bg-amber-100 text-amber-700 font-bold rounded">Belum Disemak</span>`}
+              </div>
+            </div>
+            <div class="p-3 bg-white rounded border border-slate-200 space-y-2">
+              <p class="font-semibold text-slate-700">Jawapan Murid:</p>
+              <p class="text-slate-600">${sub.text}</p>
+              ${sub.attachment ? `
+                <a href="${sub.attachment.data}" target="_blank" download="${sub.attachment.name}" class="inline-flex items-center gap-1 text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded border border-indigo-200">
+                  <i class="fa-solid fa-file-image"></i> Buka Lampiran Murid (${sub.attachment.name})
+                </a>
+              ` : ''}
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <input type="number" id="markInput-${taskId}-${studentIc}" value="${sub.mark || ''}" placeholder="Markah (%)" class="px-3 py-1.5 border rounded-lg">
+              <input type="text" id="commentInput-${taskId}-${studentIc}" value="${sub.comment || ''}" placeholder="Ulasan Guru..." class="px-3 py-1.5 border rounded-lg sm:col-span-2">
+            </div>
+            <button onclick="saveGrade(${taskId}, '${studentIc}')" class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg transition">
+              <i class="fa-solid fa-save"></i> Simpan Semakan & Markah
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function saveGrade(taskId, studentIc) {
+      const markVal = document.getElementById(`markInput-${taskId}-${studentIc}`).value;
+      const commentVal = document.getElementById(`commentInput-${taskId}-${studentIc}`).value;
+
+      if (!markVal) {
+        alert("Sila masukkan markah.");
+        return;
+      }
+
+      const store = getStore();
+      store.submissions[taskId][studentIc].mark = parseInt(markVal);
+      store.submissions[taskId][studentIc].comment = commentVal;
+      store.submissions[taskId][studentIc].status = "Graded";
+
+      saveStore(store);
+      alert("Semakan dan markah berjaya disimpan!");
+      renderStudentSubmissionsList();
+      renderTeacherTable();
+    }
+
+    function renderTeacherTable() {
+      const store = getStore();
+      const filter = document.getElementById('statusFilter').value;
+      const tbody = document.getElementById('teacherTableBody');
+
+      let filteredList = STUDENTS.filter(s => {
+        const rec = store.studentRecords[s.ic];
+        if (filter === 'present') return rec.lastLogin !== null;
+        if (filter === 'absent') return rec.lastLogin === null;
+        return true;
+      });
+
+      tbody.innerHTML = filteredList.map((s, idx) => {
+        const rec = store.studentRecords[s.ic];
+
+        let completedCount = 0;
+        let totalMarks = 0;
+        let gradedCount = 0;
+
+        Object.keys(store.submissions).forEach(tId => {
+          if (store.submissions[tId][s.ic]) {
+            completedCount++;
+            if (store.submissions[tId][s.ic].mark !== null) {
+              totalMarks += store.submissions[tId][s.ic].mark;
+              gradedCount++;
+            }
+          }
+        });
+
+        const avgScore = gradedCount > 0 ? (totalMarks / gradedCount).toFixed(0) + '%' : '-';
+
+        return `
+          <tr class="hover:bg-slate-50 transition">
+            <td class="p-3 font-semibold text-slate-500">${idx + 1}</td>
+            <td class="p-3 font-bold text-slate-800">${s.name}</td>
+            <td class="p-3 font-mono text-slate-500">${s.ic}</td>
+            <td class="p-3">
+              ${rec.lastLogin 
+                ? `<span class="px-2 py-1 bg-emerald-100 text-emerald-700 font-semibold rounded-md text-[10px]">${rec.lastLogin}</span>` 
+                : `<span class="px-2 py-1 bg-rose-100 text-rose-700 font-semibold rounded-md text-[10px]">Belum Log Masuk</span>`}
+            </td>
+            <td class="p-3 text-center">
+              ${rec.meetAttended 
+                ? `<i class="fa-solid fa-circle-check text-emerald-500 text-sm"></i>` 
+                : `<i class="fa-solid fa-circle-xmark text-slate-300 text-sm"></i>`}
+            </td>
+            <td class="p-3 text-center font-bold text-purple-600">${completedCount}</td>
+            <td class="p-3 text-center font-bold text-emerald-600">${avgScore}</td>
+            <td class="p-3 text-center font-extrabold text-amber-500">${rec.xp} XP</td>
+            <td class="p-3">
+              <div class="flex gap-1 flex-wrap">
+                ${rec.badges.map(bId => {
+                  const b = BADGES_LIST.find(x => x.id === bId);
+                  return `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold ${b ? b.color : 'bg-slate-100'}">${b ? b.title : bId}</span>`;
+                }).join('')}
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function exportToCSV() {
+      const store = getStore();
+      let csvContent = "data:text/csv;charset=utf-8,Bil,Nama Murid,No IC,Log Masuk Terakhir,Google Meet,Jumlah XP\n";
+
+      STUDENTS.forEach((s, idx) => {
+        const rec = store.studentRecords[s.ic];
+        csvContent += [idx + 1, `"${s.name}"`, `'${s.ic}`, `"${rec.lastLogin || 'Belum Log Masuk'}"`, rec.meetAttended ? "Hadir" : "Belum", rec.xp].join(",") + "\n";
+      });
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "Laporan_PdPR_1Ikhlas_2026.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function readFileAsBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve({ name: file.name, type: file.type, data: reader.result });
+        reader.onerror = error => reject(error);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function triggerConfetti() {
+      if (typeof confetti === 'function') confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+    }
+
+    function logout() {
+      currentStudent = null;
+      document.getElementById('studentDashboard').classList.add('hidden');
+      document.getElementById('teacherDashboard').classList.add('hidden');
+      document.getElementById('loginModal').classList.remove('hidden');
+      document.getElementById('studentIcInput').value = '';
+      document.getElementById('teacherPassInput').value = '';
+    }
+
+    getStore();
+  </script>
+</body>
+</html>
